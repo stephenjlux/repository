@@ -1,0 +1,31 @@
+function parseData(url, sheet_name, clear) 
+{
+  // Get data
+  var resp = UrlFetchApp.fetch(url);
+  
+  // Skip whole process if external service returned invalid data
+  if (resp.getResponseCode() != 200) 
+  {
+    return false;
+  }
+  
+  // Parse data
+  var csv = Utilities.parseCsv(resp.getContentText());
+  var data_array = []
+  for (var row in csv)
+  {
+    data_array.push(csv[row].toString().split(","));
+  }
+  
+  // Load spreadsheet
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(sheet_name);
+  
+  // Insert data into spreadsheet
+  var range = sheet.getRange(1, 1, data_array.length, data_array[0].length);
+  if (clear == "YES")
+  {
+    sheet.getRange(1, 1, sheet.getMaxRows(), data_array[0].length).clear();
+  }
+  range.setValues(data_array);
+}
